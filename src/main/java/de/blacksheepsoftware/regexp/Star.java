@@ -7,13 +7,13 @@ package de.blacksheepsoftware.regexp;
  */
 public class Star<T> extends RegularExpressionImpl<T> {
 
-    protected RegularExpression<T> inner;
+    protected final RegularExpression<T> inner;
 
-    public Star(RegularExpression<T> i) {
+    protected Star(RegularExpression<T> i) {
         if (i == null) {
             throw new IllegalArgumentException("inner expression cannot be null");
         }
-        inner = i.simplify();
+        inner = i;
     }
 
     @Override
@@ -45,6 +45,11 @@ public class Star<T> extends RegularExpressionImpl<T> {
         return inner.derivative(c).followedBy(this);
     }
 
+    @Override
+    public RegularExpression<T> star() {
+        return this;
+    }
+
     public int compareTo(RegularExpression<T> o) {
         if (o instanceof Star) {
             return inner.compareTo(((Star<T>)o).inner);
@@ -54,22 +59,6 @@ public class Star<T> extends RegularExpressionImpl<T> {
         }
         return 1;
 
-    }
-
-    @Override
-    protected RegularExpression<T> simplify() {
-        if (inner instanceof EmptySet || inner instanceof Epsilon) {
-            return RegularExpression.epsilon();
-        }
-        if (inner instanceof Sum) {
-            Sum<T> s = (Sum<T>)inner;
-            if (s.left instanceof Epsilon) {
-                // r?* == r*
-                inner = s.right;
-                return simplify();
-            }
-        }
-        return this;
     }
 
     @Override

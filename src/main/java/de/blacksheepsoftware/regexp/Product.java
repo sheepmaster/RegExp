@@ -7,7 +7,7 @@ package de.blacksheepsoftware.regexp;
  */
 public class Product<T> extends BinaryOperator<T> {
 
-    public Product(RegularExpression<T> l, RegularExpression<T> r) {
+    protected Product(RegularExpression<T> l, RegularExpression<T> r) {
         super(l, r);
     }
 
@@ -35,21 +35,6 @@ public class Product<T> extends BinaryOperator<T> {
         } else {
             return 1;
         }
-    }
-
-    @Override
-    public RegularExpression<T> simplify() {
-        if (left instanceof EmptySet || right instanceof EmptySet) {
-            return RegularExpression.emptySet();
-        }
-        if (left instanceof Epsilon) {
-            return right;
-        }
-        if (right instanceof Epsilon) {
-            return left;
-        }
-        return this;
-
     }
 
     @Override

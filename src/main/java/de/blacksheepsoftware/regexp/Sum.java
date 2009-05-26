@@ -2,13 +2,14 @@ package de.blacksheepsoftware.regexp;
 
 
 
+
 /**
  * @author <a href="bauerb@in.tum.de">Bernhard Bauer</a>
  *
  */
 public class Sum<T> extends BinaryOperator<T> {
 
-    public Sum(RegularExpression<T> l, RegularExpression<T> r) {
+    protected Sum(RegularExpression<T> l, RegularExpression<T> r) {
         super(l, r);
     }
 
@@ -24,6 +25,15 @@ public class Sum<T> extends BinaryOperator<T> {
         return (l == left && r == right) ? this : l.or(r);
     }
 
+    @Override
+    public RegularExpression<T> star() {
+        if (left instanceof Epsilon) {
+            // r?* == r*
+            return right.star();
+        }
+        return super.star();
+    }
+
     public int compareTo(RegularExpression<T> o) {
         if (this.equals(o)) {
             return 0;
@@ -34,32 +44,6 @@ public class Sum<T> extends BinaryOperator<T> {
         } else {
             return 1;
         }
-    }
-
-    @Override
-    protected RegularExpression<T> simplify() {
-        if (left instanceof EmptySet) {
-            return right;
-        }
-        int cmp = left.compareTo(right);
-        if (cmp == 0) {
-            return left;
-        }
-        if (cmp > 0) {
-            return right.or(left);
-        }
-        if (left instanceof Epsilon && right.containsEpsilon()) {
-            // r*? == r*
-            return right;
-        }
-        if (right instanceof Sum) {
-            Sum<T> s = (Sum<T>)right;
-            if (left.compareTo(s.left) > 0) {
-                return s.left.or(left.or(s.right));
-            }
-        }
-
-        return this;
     }
 
     @Override

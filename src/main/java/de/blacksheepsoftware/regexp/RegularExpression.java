@@ -14,10 +14,6 @@ public abstract class RegularExpression<T> implements Comparable<RegularExpressi
 
     public abstract RegularExpression<T> derivative(T c);
 
-    protected RegularExpression<T> simplify() {
-        return this;
-    }
-
     public static final RegularExpression<Object> EPSILON = new Epsilon();
     @SuppressWarnings("unchecked")
     public static <T> RegularExpression<T> epsilon() {
@@ -29,16 +25,35 @@ public abstract class RegularExpression<T> implements Comparable<RegularExpressi
     @Override
     public abstract boolean equals(Object o);
 
-    public RegularExpression<T> or(RegularExpression<T> r) {
-        return new Sum<T>(this, r).simplify();
+    public RegularExpression<T> or(RegularExpression<T> right) {
+        int cmp = compareTo(right);
+        if (cmp == 0) {
+            return this;
+        }
+        if (cmp > 0) {
+            return right.or(this);
+        }
+        if (right instanceof Sum) {
+            Sum<T> s = (Sum<T>)right;
+            if (compareTo(s.left) > 0) {
+                return s.left.or(or(s.right));
+            }
+        }
+        return new Sum<T>(this, right);
     }
 
     public RegularExpression<T> followedBy(RegularExpression<T> r) {
-        return new Product<T>(this, r).simplify();
+        if (r instanceof EmptySet) {
+            return r;
+        }
+        if (r instanceof Epsilon) {
+            return this;
+        }
+        return new Product<T>(this, r);
     }
 
     public RegularExpression<T> star() {
-        return new Star<T>(this).simplify();
+        return new Star<T>(this);
     }
 
     public RegularExpression<T> optional() {
@@ -94,6 +109,21 @@ public abstract class RegularExpression<T> implements Comparable<RegularExpressi
             return RegularExpression.EMPTY_SET;
         }
 
+        @Override
+        public RegularExpression<Object> or(RegularExpression<Object> r) {
+            return r.containsEpsilon() ? r : super.or(r);
+        }
+
+        @Override
+        public RegularExpression<Object> followedBy(RegularExpression<Object> r) {
+            return r;
+        }
+
+        @Override
+        public RegularExpression<Object> star() {
+            return this;
+        }
+
         public int compareTo(RegularExpression<Object> o) {
             if (this.equals(o)) {
                 return 0;
@@ -146,7 +176,22 @@ public abstract class RegularExpression<T> implements Comparable<RegularExpressi
 
         @Override
         public RegularExpression<Object> derivative(Object c) {
-            return RegularExpression.EMPTY_SET;
+            return this;
+        }
+
+        @Override
+        public RegularExpression<Object> or(RegularExpression<Object> r) {
+            return r;
+        }
+
+        @Override
+        public RegularExpression<Object> followedBy(RegularExpression<Object> r) {
+            return this;
+        }
+
+        @Override
+        public RegularExpression<Object> star() {
+            return epsilon();
         }
 
         public int compareTo(RegularExpression<Object> o) {

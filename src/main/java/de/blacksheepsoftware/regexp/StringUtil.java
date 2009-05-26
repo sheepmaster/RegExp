@@ -21,16 +21,16 @@ public class StringUtil {
     public static RegularExpression<Character> characterClass(String s) {
         RegularExpression<Character> e = RegularExpression.emptySet();
         for (char c : s.toCharArray()) {
-            e = new Sum<Character>(e, new Literal<Character>(c));
+            e = e.or(new Literal<Character>(c));
         }
-        return e.simplify();
+        return e;
     }
 
     public static RegularExpression<Character> stringMatch(String s) {
         RegularExpression<Character> e = RegularExpression.epsilon();
         for (char c : s.toCharArray()) {
-            e = new Product<Character>(e, new Literal<Character>(c));
+            e = e.followedBy(new Literal<Character>(c));
         }
-        return e.simplify();
+        return e;
     }
 }

@@ -11,15 +11,15 @@ public abstract class BinaryOperator<T> extends RegularExpressionImpl<T> {
 
     protected Boolean containsEpsilon = null;
 
-    public BinaryOperator(RegularExpression<T> l, RegularExpression<T> r) {
+    protected BinaryOperator(RegularExpression<T> l, RegularExpression<T> r) {
         if (l == null) {
             throw new IllegalArgumentException("left argument cannot be null");
         }
         if (r == null) {
             throw new IllegalArgumentException("right argument cannot be null");
         }
-        left = l.simplify();
-        right = r.simplify();
+        left = l;
+        right = r;
     }
 
     @Override
