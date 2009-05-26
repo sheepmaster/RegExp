@@ -53,6 +53,8 @@ public class Literal<T> extends RegularExpression<T> {
             return 0;
         } else if (o instanceof Literal) {
             return ((Comparable<T>)literal).compareTo(((Literal<T>)o).literal);
+        } else if (o instanceof Sum) {
+            return -1;
         } else {
             return 1;
         }

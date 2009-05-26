@@ -6,7 +6,7 @@ package de.blacksheepsoftware.regexp;
  *
  */
 
-// EmptySet < Epsilon < Sum < Product < Star < Literal
+// EmptySet < Epsilon < Product < Star < Literal < Sum
 
 public abstract class RegularExpression<T> implements Comparable<RegularExpression<T>> {
 
@@ -29,6 +29,36 @@ public abstract class RegularExpression<T> implements Comparable<RegularExpressi
     @Override
     public abstract boolean equals(Object o);
 
+    public RegularExpression<T> or(RegularExpression<T> r) {
+        return new Sum<T>(this, r).simplify();
+    }
+
+    public RegularExpression<T> followedBy(RegularExpression<T> r) {
+        return new Product<T>(this, r).simplify();
+    }
+
+    public RegularExpression<T> star() {
+        return new Star<T>(this).simplify();
+    }
+
+    public RegularExpression<T> optional() {
+        final RegularExpression<T> epsilon = epsilon();
+        return or(epsilon);
+    }
+
+    public RegularExpression<T> repeated(int i) {
+        if (i < 0) {
+            throw new IllegalArgumentException("i must not be less than zero");
+        }
+        if (i == 0) {
+            return RegularExpression.epsilon();
+        }
+        if (i == 1) {
+            return this;
+        }
+        return followedBy(repeated(i-1));
+    }
+
     public static class Epsilon extends RegularExpression<Object> {
 
         private Epsilon() {}
@@ -47,6 +77,11 @@ public abstract class RegularExpression<T> implements Comparable<RegularExpressi
             if (!(obj instanceof Epsilon))
                 return false;
             return true;
+        }
+
+        @Override
+        public String toString() {
+            return "<Epsilon>";
         }
 
         @Override
@@ -98,6 +133,12 @@ public abstract class RegularExpression<T> implements Comparable<RegularExpressi
                 return false;
             return true;
         }
+
+        @Override
+        public String toString() {
+            return "<EmptySet>";
+        }
+
         @Override
         public boolean containsEpsilon() {
             return false;

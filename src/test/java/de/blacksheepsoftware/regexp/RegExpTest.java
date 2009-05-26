@@ -35,7 +35,7 @@ public class RegExpTest extends TestCase {
     }
 
     public void testDings() {
-        final RegularExpression<Character> expr = Util.star(StringUtil.characterClass("abc"));
+        final RegularExpression<Character> expr = StringUtil.characterClass("abc").star();
         final RegularExpression<Character> d = expr.derivative('a');
         assertEquals(expr, d);
 
@@ -43,8 +43,7 @@ public class RegExpTest extends TestCase {
 
     public void testExponentialBlowup() {
         final RegularExpression<Character> any = StringUtil.characterClass("01");
-        final RegularExpression<Character> anyStar = Util.star(any);
-        final RegularExpression<Character> expr = Util.product(anyStar, Util.product(new Literal<Character>('1'), Util.repeat(any, 10)));
+        final RegularExpression<Character> expr = any.star().followedBy(new Literal<Character>('1')).followedBy(any.repeated(10));
 
         assertTrue(StringUtil.matches(expr, "010000000000"));
         assertTrue(StringUtil.matches(expr, "010101010101"));
@@ -52,12 +51,11 @@ public class RegExpTest extends TestCase {
     }
 
     public void testStringSearch() {
-        final RegularExpression<Character> any = StringUtil.characterClass("abc");
-        final RegularExpression<Character> anyStar = Util.star(any);
-        final RegularExpression<Character> expr = Util.product(anyStar, Util.product(StringUtil.stringMatch("abc"), anyStar));
+        final RegularExpression<Character> anyChar = StringUtil.characterClass("abc");
+        final RegularExpression<Character> anyString = anyChar.star();
+        final RegularExpression<Character> expr = anyString.followedBy(StringUtil.stringMatch("abc")).followedBy(anyString);
 
-        final RegularExpression<Character> d = expr.derivative('a');
-        assertTrue(contains(d, expr));
+        final RegularExpression<Character> muuh = StringUtil.derivative(expr, "abcabcabc");
 
         assertTrue(StringUtil.matches(expr, "ababcab"));
         assertFalse(StringUtil.matches(expr, "ababab"));

@@ -8,10 +8,13 @@ import java.util.TreeMap;
  *
  */
 public abstract class RegularExpressionImpl<T> extends RegularExpression<T> {
-    protected Map<T, RegularExpression<T>> derivatives = new TreeMap<T, RegularExpression<T>>();
+    protected Map<T, RegularExpression<T>> derivatives;
 
     @Override
     public RegularExpression<T> derivative(T c) {
+        if (derivatives == null) {
+            derivatives = new TreeMap<T, RegularExpression<T>>();
+        }
         RegularExpression<T> r = derivatives.get(c);
         if (r == null) {
             r = _diff(c);

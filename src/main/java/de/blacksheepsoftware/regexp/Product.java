@@ -19,8 +19,8 @@ public class Product<T> extends BinaryOperator<T> {
     @Override
     protected RegularExpression<T> _diff(T c) {
         final RegularExpression<T> l = left.derivative(c);
-        final RegularExpression<T> p = (l == left) ? this : Util.product(l, right);
-        return left.containsEpsilon() ? Util.sum(right.derivative(c), p) : p;
+        final RegularExpression<T> p = (l == left) ? this : l.followedBy(right);
+        return left.containsEpsilon() ? right.derivative(c).or(p) : p;
     }
 
     public int compareTo(RegularExpression<T> o) {
@@ -30,7 +30,7 @@ public class Product<T> extends BinaryOperator<T> {
             Product<T> s = (Product<T>)o;
             final int leftComparison = left.compareTo(s.left);
             return (leftComparison == 0) ? right.compareTo(s.right) : leftComparison;
-        } else if (o instanceof Literal || o instanceof Star) {
+        } else if (o instanceof Literal || o instanceof Star || o instanceof Sum) {
             return -1;
         } else {
             return 1;

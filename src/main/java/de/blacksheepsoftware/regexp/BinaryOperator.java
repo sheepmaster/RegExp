@@ -6,8 +6,8 @@ package de.blacksheepsoftware.regexp;
  */
 public abstract class BinaryOperator<T> extends RegularExpressionImpl<T> {
 
-    protected RegularExpression<T> left;
-    protected RegularExpression<T> right;
+    protected final RegularExpression<T> left;
+    protected final RegularExpression<T> right;
 
     protected Boolean containsEpsilon = null;
 

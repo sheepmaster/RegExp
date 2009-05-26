@@ -42,14 +42,14 @@ public class Star<T> extends RegularExpressionImpl<T> {
 
     @Override
     protected RegularExpression<T> _diff(T c) {
-        return Util.product(inner.derivative(c), this);
+        return inner.derivative(c).followedBy(this);
     }
 
     public int compareTo(RegularExpression<T> o) {
         if (o instanceof Star) {
             return inner.compareTo(((Star<T>)o).inner);
         }
-        if (o instanceof Literal) {
+        if (o instanceof Literal || o instanceof Sum) {
             return -1;
         }
         return 1;

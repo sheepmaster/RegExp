@@ -7,11 +7,15 @@ package de.blacksheepsoftware.regexp;
 public class StringUtil {
     private StringUtil() {}
 
-    public static boolean matches(RegularExpression<Character> e, String s) {
+    public static RegularExpression<Character> derivative(RegularExpression<Character> e, String s) {
         for (char c : s.toCharArray()) {
             e = e.derivative(c);
         }
-        return e.containsEpsilon();
+        return e;
+    }
+
+    public static boolean matches(RegularExpression<Character> e, String s) {
+        return derivative(e, s).containsEpsilon();
     }
 
     public static RegularExpression<Character> characterClass(String s) {

@@ -21,7 +21,7 @@ public class Sum<T> extends BinaryOperator<T> {
     protected RegularExpression<T> _diff(T c) {
         final RegularExpression<T> l = left.derivative(c);
         final RegularExpression<T> r = right.derivative(c);
-        return (l == left && r == right) ? this : Util.sum(l, r);
+        return (l == left && r == right) ? this : l.or(r);
     }
 
     public int compareTo(RegularExpression<T> o) {
@@ -31,10 +31,8 @@ public class Sum<T> extends BinaryOperator<T> {
             Sum<T> s = (Sum<T>)o;
             final int leftComparison = left.compareTo(s.left);
             return (leftComparison == 0) ? right.compareTo(s.right) : leftComparison;
-        } else if (o instanceof EmptySet || o instanceof Epsilon) {
-            return 1;
         } else {
-            return -1;
+            return 1;
         }
     }
 
@@ -48,23 +46,16 @@ public class Sum<T> extends BinaryOperator<T> {
             return left;
         }
         if (cmp > 0) {
-            RegularExpression<T> tmp = right;
-            right = left;
-            left = tmp;
-            return simplify();
+            return right.or(left);
         }
-        if (right instanceof Star && left instanceof Epsilon) {
+        if (left instanceof Epsilon && right.containsEpsilon()) {
             // r*? == r*
             return right;
         }
         if (right instanceof Sum) {
             Sum<T> s = (Sum<T>)right;
             if (left.compareTo(s.left) > 0) {
-                RegularExpression<T> tmp = s.left;
-                s.left = left;
-                left = tmp;
-                right = s.simplify();
-                return simplify();
+                return s.left.or(left.or(s.right));
             }
         }
 
